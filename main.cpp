@@ -8,7 +8,6 @@
 #include <ncurses.h>
 
 void printStates();
-
 void close();
 
 std::vector<std::unique_ptr<Philosopher>> philosophers;
@@ -17,7 +16,18 @@ std::shared_ptr<int> FOOD = std::make_shared<int>(INT32_MAX);
 std::shared_ptr<std::condition_variable> condition = std::make_shared<std::condition_variable>();
 std::shared_ptr<std::mutex> philosopherMutex = std::make_shared<std::mutex>();
 
-int main(){
+int main(int argc, char* argv[]) {
+    if (argc < 2) {
+        std::cerr << "Usage: " << argv[0] << " <number_of_philosophers>" << std::endl;
+        return 1;
+    }
+
+    int numPhilosophers = std::stoi(argv[1]);
+    if (numPhilosophers < 2) {
+        std::cerr << "Error: The number of philosophers must be at least 2." << std::endl;
+        return 1;
+    }
+
     initscr();
     cbreak();
     noecho();   
@@ -26,13 +36,13 @@ int main(){
     nodelay(stdscr, TRUE);
     resize_term(100, 100);
 
-    philosophers.push_back(std::make_unique<Philosopher>("Platon", philosopherMutex, FOOD, condition));
-    philosophers.push_back(std::make_unique<Philosopher>("Sokrates", philosopherMutex, FOOD, condition));
-    philosophers.push_back(std::make_unique<Philosopher>("Heraklit", philosopherMutex, FOOD, condition));
-    philosophers.push_back(std::make_unique<Philosopher>("Arystoteles", philosopherMutex, FOOD, condition));
+    for (int i = 0; i < numPhilosophers; i++) {
+        std::string name = "Philosopher " + std::to_string(i + 1);
+        philosophers.push_back(std::make_unique<Philosopher>(name, philosopherMutex, FOOD, condition));
+    }
     
     volatile bool shouldClose = false;
-    while (!shouldClose){
+    while (!shouldClose) {
         printStates();
         int ch = getch();
         if (ch == ' ') {
@@ -47,20 +57,19 @@ int main(){
     return 0;
 }
 
-void printStates(){
+void printStates() {
     erase();
     mvprintw(0, 0, "Currently there is %d food", *FOOD);
     int i = 1;
-    for(auto const& p : philosophers){
-        if(p->isEating)
-            mvprintw(i++, 0, "Philosopher %s is eating", p->name.c_str());
+    for (auto const& p : philosophers) {
+        if (p->isEating)
+            mvprintw(i++, 0, "%s is eating", p->name.c_str());
         else
-            mvprintw(i++, 0, "Philosopher %s is waiting for food", p->name.c_str());
-    
+            mvprintw(i++, 0, "%s is waiting for food", p->name.c_str());
     }
 }
 
-void close(){
-    for(auto const& p : philosophers)
+void close() {
+    for (auto const& p : philosophers)
         p->close();
 }
