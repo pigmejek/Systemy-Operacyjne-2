@@ -10,7 +10,7 @@
 void printStates();
 void close();
 
-std::vector<std::unique_ptr<Philosopher>> philosophers;
+std::vector<std::shared_ptr<Philosopher>> philosophers;
 
 std::shared_ptr<int> FOOD = std::make_shared<int>(INT32_MAX);
 std::shared_ptr<std::condition_variable> condition = std::make_shared<std::condition_variable>();
@@ -37,10 +37,13 @@ int main(int argc, char* argv[]) {
     resize_term(100, 100);
 
     for (int i = 0; i < numPhilosophers; i++) {
-        std::string name = "Philosopher " + std::to_string(i + 1);
-        philosophers.push_back(std::make_unique<Philosopher>(name, philosopherMutex, FOOD, condition));
+        std::string name = "Philosopher " + std::to_string(i);
+        philosophers.push_back(std::make_shared<Philosopher>(name, i, philosopherMutex, FOOD, condition));
     }
-    
+
+    for (const auto p : philosophers)
+        p->startThread(philosophers);
+
     volatile bool shouldClose = false;
     while (!shouldClose) {
         printStates();

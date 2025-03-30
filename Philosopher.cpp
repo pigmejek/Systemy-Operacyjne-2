@@ -1,33 +1,46 @@
-#include <Philosopher.hpp>
+#include "Philosopher.hpp"
 
-void Philosopher::eat(){
-    // bool finishedEating = true;
+void Philosopher::eat(const std::vector<std::shared_ptr<Philosopher>>& philosophers){
     while(!shouldClose){
         std::unique_lock<std::mutex> lock(*philosopherMutex);
-        condition->wait(lock,  [&]() { return !isEating || shouldClose; }); 
+        condition->wait(lock, [&]() { return canEat(philosophers) || shouldClose; }); 
 
         if(shouldClose)
             break;
 
+        if (!canEat(philosophers))
+            continue;
+
         isEating = true;
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         (*food)--;
-    
-        isEating = false;
-        // finishedEating = true;
-        
-        // lock.unlock();
-        condition->notify_all();
+
         lock.unlock();
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        
+        lock.lock();
+        isEating = false;
+        lock.unlock();
+
+        condition->notify_all();
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 }
 
 void Philosopher::close(){
-    std::cout << name << " is leaving" << std::endl;
+    std::cout << "Philosopher " << name << " is leaving" << std::endl;
     shouldClose = true;
     condition->notify_all();
     if(philosopherThread.joinable())
         philosopherThread.join();
-    std::cout << name << " left" << std::endl;
+    std::cout << "Philosopher " << name << " left" << std::endl;
+}
+
+bool Philosopher::canEat(const std::vector<std::shared_ptr<Philosopher>>& philosophers){
+    if (id == 0)
+        return !philosophers[id + 1]->isEating && !philosophers[philosophers.size() - 1]->isEating;
+    else if(id == philosophers.size() - 1)
+        return !philosophers[id - 1]->isEating && !philosophers[0]->isEating;
+    else{
+        return !philosophers[id - 1]->isEating && !philosophers[id + 1]->isEating;
+    }
 }
