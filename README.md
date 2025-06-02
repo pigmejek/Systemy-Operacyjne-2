@@ -1,6 +1,6 @@
 # Systemy-Operacyjne-2
 
-Opis problemu:
+###Opis problemu
 Przy stole siedzi N filozofów, którzy wykonują na zmianę dwie czynności - jedzą lub myślą. Aby filozof mógł jeść musi posiadać dwa widelce, po jednym z lewej i prawej strony. Każdy widelec może być trzymany tylko przez jednego filozofa.
 Filozofowie muszą dzielić się sztućcami w taki sposób, by żaden z nich nie pozostał za długo bez jedzenia oraz by nie wystąpiła sytuacja w której żaden z filozofów nie ma dostępu do jedzenia.
 
