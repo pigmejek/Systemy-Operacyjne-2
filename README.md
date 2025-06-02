@@ -1,4 +1,4 @@
-# Systemy-Operacyjne-2
+# Systemy Operacyjne 2 - projekt
 
 ## Opis problemu
 Przy stole siedzi N filozofów, którzy wykonują na zmianę dwie czynności - jedzą lub myślą. Aby filozof mógł jeść musi posiadać dwa widelce, po jednym z lewej i prawej strony. Każdy widelec może być trzymany tylko przez jednego filozofa.
